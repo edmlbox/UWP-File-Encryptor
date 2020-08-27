@@ -1,0 +1,374 @@
+﻿<Page 
+    x:Class="App46.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:App46"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Windows.UI.Xaml.Controls"
+    xmlns:storage="using:Windows.Storage"
+    xmlns:Vm="using:App46.ViewModel"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    
+    <Page.Resources>
+        <!--Right Click Menu Popup-->
+        <CommandBarFlyout 
+            ShowMode="TransientWithDismissOnPointerMoveAway"
+            x:Name="ImageCommandsFlyout" 
+            x:Key="ImageCommandsFlyout">
+            
+            <CommandBarFlyout.SecondaryCommands>
+                
+                <AppBarButton Label="{x:Bind FileListView.ViewText.OpenFolder}" 
+                              Icon="Folder" 
+                              Click="{x:Bind FileListView.Events.OpenFolderEvent}"/>
+                
+                <AppBarButton Label="{x:Bind FileListView.ViewText.Remove}" 
+                              Icon="Delete" 
+                              Click="{x:Bind FileListView.Events.RemoveFromListEvent}"/>
+                
+            </CommandBarFlyout.SecondaryCommands>
+            
+        </CommandBarFlyout>
+        
+    </Page.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+       
+        <!--Menu Bar Top-->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <MenuBar 
+            HorizontalAlignment="Stretch"
+            Grid.Row="0">
+                <!--Menu File-->
+
+                <MenuBarItem 
+                HorizontalAlignment="Left"
+                Title="{x:Bind FileListView.ViewText.File}">
+
+                    <!--Menu Add Files-->
+                    <MenuFlyoutItem Text="{x:Bind FileListView.ViewText.AddFiles}" 
+                                Click="{x:Bind FileListView.Events.ClickMultiplyFilesEvent}">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE710;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+
+                    <!--Menu Add Folder-->
+                    <MenuFlyoutItem Text="{x:Bind FileListView.ViewText.AddFolder}"  
+                                Click="{x:Bind FileListView.Events.ClickSingleFolderEvent}">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8F4;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+
+                    <!--Menu Exit-->
+                    <MenuFlyoutItem Text="{x:Bind FileListView.ViewText.Exit}" 
+                                Click="{x:Bind FileListView.Events.ClickCloseEvent}">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEF2C;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuBarItem>
+                <!--Menu Edit-->
+                <!--RemoveAll-->
+
+                <MenuBarItem Title="{x:Bind FileListView.ViewText.Selection}">
+                    <MenuFlyoutItem 
+                    Text="{x:Bind FileListView.ViewText.RemoveAll}"
+                    IsEnabled="{x:Bind FileListView.RemoveAll, Mode=OneWay}"
+                    Click="{x:Bind FileListView.Events.ClearListClickEvent}">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74D;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+
+                    <!--RemoveSelected-->
+                    <MenuFlyoutItem
+                    IsEnabled="{x:Bind FileListView.RemoveSelected,Mode=OneWay}"
+                    x:Name="MenuRemSelItems"
+                    Text="{x:Bind FileListView.ViewText.RemoveSelected}" 
+                    Click="{x:Bind FileListView.Events.RemoveSelectedItemsEvent}">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+
+                    <!--SelectMultiply-->
+                    <MenuFlyoutItem 
+                    Click="{x:Bind FileListView.Events.MenuSelectMultiplyItems_Click}"
+                    IsEnabled="{x:Bind FileListView.SelectMultiply, Mode=OneWay}"
+                    x:Name="MenuSelectMultiplyItems"
+                    Text="{x:Bind FileListView.ViewText.SelectMultiply}" 
+                    >
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE762;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+
+                    <!--SelectAll-->
+                    <MenuFlyoutItem 
+                    IsEnabled="{x:Bind FileListView.SelectAll,Mode=OneWay}"
+                    Click="{x:Bind FileListView.Events.SelectAllItems}"
+                    x:Name="MenuSelectAllItems"
+                    Text="{x:Bind FileListView.ViewText.SelectAll}" 
+                    >
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8B3;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+
+                    <!--DeselectAll-->
+                    <MenuFlyoutItem 
+                    Click="{x:Bind FileListView.Events.DeSelectAll}"
+                    IsEnabled="{x:Bind FileListView.DeselectAll, 
+                    Mode=OneWay}"
+                    x:Name="MenuRemoveSelection"
+                    Text="{x:Bind FileListView.ViewText.DeselectAll}" 
+                    >
+                        <MenuFlyoutItem.Icon>
+
+                            <FontIcon FontFamily="Segoe MDL2 Assets" 
+                                  Glyph="&#xE8E6;"/>
+
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+
+                </MenuBarItem>
+                <MenuBarItem 
+                 
+                Title="Encryption">
+                    <MenuFlyoutItem Text="Encrypt All" 
+                                IsEnabled="{x:Bind FileListView.EncryptAll, Mode=OneWay}"
+                                Click="{x:Bind FileListView.Events.MenuFlyoutItemEncryptAll}">
+
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Cancel Encryption" 
+                                    Click="{x:Bind FileListView.Events.MenuFlyoutItemStopEncryption}"
+                                IsEnabled="{x:Bind FileListView.IsEncryptionActive, Mode=OneWay}"
+                                >
+
+                    </MenuFlyoutItem>
+                </MenuBarItem>
+
+               
+
+            </MenuBar>
+            <AppBarButton Grid.Column="1" 
+                          Click="{x:Bind FileListView.Events.MenuFlyoutItemSettingPage}"
+                          Icon="Setting"
+                          Label="Settings"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+               
+            </AppBarButton>
+        </Grid>
+
+        <Frame  
+            Grid.Row="1">
+            <ScrollViewer 
+           >
+                <Grid  
+              Background="#e8e8e8" 
+              DragOver="{x:Bind FileListView.Events.Grid_DragOverEvent}"
+              Drop="{x:Bind FileListView.Events.Grid_DropEvent}"
+              AllowDrop="True">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <!--Fran and Drop and add Button in the middle of window-->
+                    <RelativePanel 
+                        Grid.Row="1" 
+                           Visibility="{x:Bind FileListView.RelativePanelVisibility, Mode=OneWay}">
+                        <StackPanel 
+                           
+                          
+                            Orientation="Vertical"
+                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                            RelativePanel.AlignHorizontalCenterWithPanel="True">
+                            <StackPanel 
+                              
+                                HorizontalAlignment="Center"
+                                Orientation="Horizontal">
+                                <Button  Height="50" 
+                                        
+                                    
+                             Click="{x:Bind FileListView.Events.ClickMultiplyFilesEvent}"
+                         Name="AddButtonRelpanel"
+                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                        RelativePanel.AlignHorizontalCenterWithPanel="True">
+                                    <StackPanel Orientation="Horizontal" >
+                                        <FontIcon 
+                            Foreground="#0078D7"
+                            FontFamily="Segoe MDL2 Assets" Glyph="&#xE8E5;"/>
+                                        <TextBlock 
+                                
+                                Text="{x:Bind FileListView.ViewText.AddFiles}" Margin="5 0 0 0" />
+                                    </StackPanel>
+
+                                </Button>
+                                <Button  
+                                   Margin="5 0 0 0"
+                                    Height="50"
+                             Click="{x:Bind FileListView.Events.ClickSingleFolderEvent}"
+                         Name="AddButtonRelpanel1"
+                        RelativePanel.RightOf="AddButtonRelpanel"
+                        RelativePanel.AlignVerticalCenterWith="AddButtonRelpanel">
+                                    <StackPanel Orientation="Horizontal" >
+                                        <FontIcon 
+                            Foreground="#0078D7"
+                            FontFamily="Segoe MDL2 Assets" Glyph="&#xE838;"/>
+                                        <TextBlock 
+                                
+                                Text="{x:Bind FileListView.ViewText.AddFolder}" Margin="5 0 0 0" />
+                                    </StackPanel>
+
+                                </Button>
+                            </StackPanel>
+                           
+                            <StackPanel>
+                                <TextBlock Text="Drag and Drop Files or Folder Here" 
+                           Margin="0 5 0 0"
+                           FontSize="20"
+                           Foreground="Gray"
+                           RelativePanel.AlignHorizontalCenterWith="AddButtonRelpanel"
+                           RelativePanel.Below="AddButtonRelpanel"/>
+                            </StackPanel>
+                          
+                        </StackPanel>
+                      
+                    </RelativePanel>
+                    <!--File List-->
+                    <ListView
+              Visibility="{x:Bind FileListView.ListViewVisibility,Mode=OneWay}"
+              ReorderMode="Enabled"
+              Style="{StaticResource ListViewStyle}"
+              SelectionMode="{x:Bind FileListView.ListViewSelectionMode, Mode=OneWay}"
+              SelectionChanged="{x:Bind FileListView.Events.ListFiles_SelectionChangedEvent}"
+              ItemsSource="{x:Bind FileListView.fileStorageCollection.storageItems, Mode=TwoWay}"
+              x:Name="ListFiles" 
+              >
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:FileCollection">
+
+                                <ListViewItem 
+                            IsSelected="{x:Bind IsSelected, Mode=OneWay}"
+                            Style="{StaticResource ListViewItemStyle}"
+                            PointerEntered="{x:Bind ListViewItem_PointerEntered}"
+                            PointerExited="{x:Bind ListViewItem_PointerExited}"
+                            ContextFlyout="{StaticResource ImageCommandsFlyout}">
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+
+                                        </Grid.ColumnDefinitions>
+                                        <Image Source="{x:Bind Bitmap, Mode=OneWay}" Grid.Column="0" Style="{StaticResource ImageFileIconStyle}"/>
+                                        <StackPanel Style="{StaticResource StackPanelFileTextContainerStyle}">
+                                            <TextBlock Text="{x:Bind FileName, Mode=OneWay}" Style="{StaticResource TextBlockFileNameStyle}" />
+                                            <TextBlock Text="{x:Bind storageItem.Path, Mode=OneWay}" Style="{StaticResource TextBlockPathStyle}"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{x:Bind fileSize}" 
+                                                           
+                                                           Style="{StaticResource TextBlockSizeStyle}"/>
+                                                <ProgressBar 
+                                                   
+                                                    Visibility="{x:Bind ProgressBarVisibility, Mode=OneWay}"
+                                                    Foreground="ForestGreen"
+                                                    Margin="15 0 0 0"
+                                                    VerticalAlignment="Center"
+                                                    Width="300" Value="{x:Bind ProgressBarValue, Mode=OneWay}"/>
+                                            </StackPanel>
+                                           
+                                        </StackPanel>
+
+                                        <Button 
+                                        Click="Button_Click_Remove_El_Event"
+                                        Visibility="{x:Bind IsButtonVisible, Mode=OneWay}" 
+                                        Style="{StaticResource ButtonDeleteStyle}">
+                                            <SymbolIcon Symbol="Delete"/>
+                                        </Button>
+
+                                    </Grid>
+
+
+                                </ListViewItem>
+
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                </Grid>
+            </ScrollViewer>
+        </Frame>
+        
+        
+        <!--Footer-->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!--Footer Added Items-->
+            <TextBlock 
+                Text="{x:Bind FileListView.ViewText.SelectedItems__}" 
+                Style="{StaticResource TextBlockFooterStyle1}"/>
+            
+            <!--Footer Added Items Number-->
+            <TextBlock 
+                Text="{x:Bind FileListView.fileStorageCollection.storageItems.Count, Mode=OneWay}" 
+                Style="{StaticResource TextBlockFooterStyle2}"/>
+
+            <!--Footer STOP BUTTOn-->
+            <Button 
+                Click="{x:Bind FileListView.Events.StopAddingItemsToCollection}"
+             Visibility="{x:Bind FileListView.Events.visibility, Mode=OneWay}"
+              
+                    Style="{StaticResource FooterButtonStopStyle}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <ProgressBar 
+                            Foreground="White"
+                            Width="70" 
+                            IsIndeterminate="True" 
+                            ShowPaused="False" 
+                            ShowError="False" />
+                        <TextBlock Text="Stop" Margin="5 0 0 0"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+            <!--Footer Selected Items Text-->
+            <TextBlock 
+                Text="{x:Bind FileListView.ViewText.Items__}" 
+                Style="{StaticResource TextBlockFooterStyle3}"/>
+
+           
+            <!--Footer Selected Items Number-->
+            <TextBlock 
+                Style="{StaticResource TextBlockFooterStyle4}"
+                Text="{x:Bind FileListView.SelectedNumber, Mode=OneWay}"/>
+        </Grid>
+        
+    </Grid>
+</Page>
